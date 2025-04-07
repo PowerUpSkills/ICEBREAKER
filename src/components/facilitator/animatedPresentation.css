@@ -1,0 +1,32 @@
+/* Animation styles for the animated profile presentation */
+
+/* Custom keyframes - these will be used by Tailwind classes */
+@keyframes floatingParticles {
+  0% { transform: translateY(0) translateX(0); }
+  25% { transform: translateY(-10px) translateX(10px); }
+  50% { transform: translateY(0) translateX(20px); }
+  75% { transform: translateY(10px) translateX(10px); }
+  100% { transform: translateY(0) translateX(0); }
+}
+
+/* Fade-in animation for sentences */
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Map container styles */
+.map-container .leaflet-container {
+  @apply rounded-xl h-[300px] !important;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+/* Larger map for presentation mode */
+.presentation-mode .map-container .leaflet-container {
+  @apply h-[500px] !important;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+}

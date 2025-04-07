@@ -1,0 +1,338 @@
+/* Main layout */
+.dashboard-container {
+  @apply min-h-screen bg-gradient-to-b from-indigo-100 to-purple-100 p-6;
+}
+
+.dashboard-content {
+  @apply max-w-7xl mx-auto;
+}
+
+/* Header */
+.dashboard-header {
+  @apply bg-white rounded-xl shadow-md p-4 mb-6;
+}
+
+.dashboard-header-content {
+  @apply flex items-center justify-between;
+}
+
+.dashboard-title {
+  @apply text-2xl font-bold text-indigo-700;
+}
+
+.dashboard-subtitle {
+  @apply text-sm text-gray-500;
+}
+
+/* Loading state */
+.dashboard-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 16rem;
+}
+
+.dashboard-spinner {
+  animation: spin 1s linear infinite;
+  border-radius: 9999px;
+  height: 3rem;
+  width: 3rem;
+  border-top: 2px solid #4338ca;
+  border-right: 2px solid transparent;
+  border-bottom: 2px solid #4338ca;
+  border-left: 2px solid transparent;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Grid layout */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1.5rem;
+}
+
+/* Team sidebar */
+.dashboard-sidebar {
+  grid-column: span 2 / span 2;
+}
+
+.dashboard-sidebar-card {
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 1rem;
+  position: sticky;
+  top: 1.5rem;
+}
+
+.dashboard-sidebar-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.dashboard-team-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dashboard-team-member {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dashboard-team-member:hover {
+  background-color: #f3f4f6;
+}
+
+.dashboard-team-member.selected {
+  background-color: #e0e7ff;
+  box-shadow: 0 0 0 2px #4338ca;
+}
+
+.dashboard-team-avatar {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-team-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.dashboard-team-role {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+/* Main content area */
+.dashboard-main {
+  grid-column: span 7 / span 7;
+}
+
+.dashboard-main-card {
+  background-color: #f9fafb;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 1rem;
+  min-height: 600px;
+}
+
+/* Empty state */
+.dashboard-empty-state {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 2rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.dashboard-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-empty-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #374151;
+  margin-bottom: 1rem;
+}
+
+.dashboard-empty-text {
+  color: #6b7280;
+}
+
+/* Questions sidebar */
+.dashboard-questions {
+  grid-column: span 3 / span 3;
+}
+
+.dashboard-questions-card {
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 1rem;
+  position: sticky;
+  top: 1.5rem;
+}
+
+.dashboard-questions-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.dashboard-questions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dashboard-question-item {
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dashboard-question-item:hover {
+  background-color: #f3f4f6;
+}
+
+.dashboard-question-item.selected {
+  background-color: #e0e7ff;
+  color: #4338ca;
+  font-weight: 500;
+}
+
+/* Content display */
+.dashboard-content-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+}
+
+.dashboard-content-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.dashboard-profile-header {
+  display: flex;
+  align-items: center;
+}
+
+.dashboard-profile-avatar {
+  font-size: 3rem;
+  margin-right: 1rem;
+}
+
+.dashboard-profile-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.dashboard-profile-role {
+  font-size: 1.125rem;
+  color: #6b7280;
+}
+
+/* Location display */
+.dashboard-location-section {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: #eff6ff;
+  border-radius: 0.375rem;
+}
+
+.dashboard-location-label {
+  font-weight: 600;
+}
+
+.dashboard-location-value {
+  font-size: 1.125rem;
+}
+
+.dashboard-map-container {
+  margin-top: 0.5rem;
+}
+
+/* AI Profile */
+.dashboard-ai-profile {
+  @apply bg-white rounded-lg shadow-md p-6 h-full overflow-y-auto;
+}
+
+.dashboard-ai-header {
+  @apply flex justify-between items-center mb-6;
+}
+
+.dashboard-ai-title {
+  @apply text-2xl font-bold text-indigo-700;
+}
+
+.dashboard-ai-close {
+  @apply text-gray-500 cursor-pointer hover:text-gray-700 transition-colors;
+}
+
+.dashboard-ai-content {
+  @apply max-w-none;
+}
+
+.dashboard-ai-actions {
+  @apply mt-6 flex justify-center gap-4;
+}
+
+.dashboard-button {
+  @apply px-4 py-2 rounded-md font-medium cursor-pointer transition-all duration-200;
+}
+
+.dashboard-button-primary {
+  @apply bg-indigo-700 text-white hover:bg-indigo-800;
+}
+
+.dashboard-button-secondary {
+  @apply bg-indigo-100 text-indigo-700 hover:bg-indigo-200;
+}
+
+/* Generate profile button */
+.dashboard-generate-button {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.dashboard-generate {
+  padding: 0.75rem 1.5rem;
+  background-color: #4338ca;
+  color: white;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dashboard-generate:hover {
+  background-color: #3730a3;
+}
+
+.dashboard-generate:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dashboard-generate-spinner {
+  animation: spin 1s linear infinite;
+  height: 1.25rem;
+  width: 1.25rem;
+  border-radius: 9999px;
+  border-top: 2px solid white;
+  border-right: 2px solid transparent;
+  border-bottom: 2px solid white;
+  border-left: 2px solid transparent;
+  margin-right: 0.75rem;
+  margin-left: -0.25rem;
+}
