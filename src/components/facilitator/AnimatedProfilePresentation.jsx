@@ -19,6 +19,7 @@ const AnimatedProfilePresentation = ({ profileText, participantData, onClose }) 
   const timerRef = useRef(null);
   const audioRef = useRef(null);
   const nextTimeoutRef = useRef(null); // Store the next timeout duration
+  const pauseTimeRef = useRef(null); // Store the time when paused
 
   // Initialize audio element
   useEffect(() => {
@@ -100,18 +101,41 @@ const AnimatedProfilePresentation = ({ profileText, participantData, onClose }) 
       }
     }
 
-    // Check for specific location keywords
-    if (lowerText.includes('born in') || lowerText.includes('birthplace')) {
+    // Check for specific location sections and keywords
+    if (lowerText.includes('origin story') || lowerText.includes('born in') || lowerText.includes('birthplace')) {
       return participantData.answers.birthplace;
     }
-    if (lowerText.includes('5 years ago')) {
-      return participantData.answers.location5;
-    }
-    if (lowerText.includes('10 years ago')) {
+    if (lowerText.includes('early adventures') || lowerText.includes('10 years ago') || lowerText.includes('decade ago')) {
       return participantData.answers.location10;
+    }
+    if (lowerText.includes('recent journey') || lowerText.includes('5 years ago') || lowerText.includes('five years ago')) {
+      return participantData.answers.location5;
     }
 
     return null;
+  };
+
+  // Check if the sentence is introducing the team member
+  const isTeamMemberIntro = (sentence) => {
+    if (!sentence || !participantData) return false;
+
+    const lowerSentence = sentence.toLowerCase();
+    const name = participantData.name;
+
+    // Check for patterns that typically introduce a team member
+    return (
+      (lowerSentence.includes('team member') ||
+       lowerSentence.includes('profile') ||
+       lowerSentence.includes('introducing') ||
+       lowerSentence.includes('meet')) &&
+      lowerSentence.includes(name.toLowerCase())
+    );
+  };
+
+  // Extract the member name from an introduction sentence
+  const extractMemberName = () => {
+    if (!participantData) return '';
+    return participantData.name;
   };
 
   // Find a relevant emoji for the current sentence
@@ -121,6 +145,9 @@ const AnimatedProfilePresentation = ({ profileText, participantData, onClose }) 
     // Extract emoji if present in the sentence
     const extractedEmoji = extractEmoji(sentence);
     if (extractedEmoji) return extractedEmoji;
+
+    // Special emoji for member introduction
+    if (isTeamMemberIntro(sentence)) return '🎉';
 
     const lowerSentence = sentence.toLowerCase();
 
@@ -168,11 +195,20 @@ const AnimatedProfilePresentation = ({ profileText, participantData, onClose }) 
 
   // Start the presentation
   const startPresentation = () => {
-    if (sentences.length === 0) return;
+    console.log('Start presentation called');
+    if (sentences.length === 0) {
+      console.log('No sentences to present');
+      return;
+    }
 
     setIsPlaying(true);
+    setIsPaused(false); // Make sure we're not paused when starting
     setCurrentSentenceIndex(0);
     setProgress(0);
+
+    // Reset refs
+    nextTimeoutRef.current = null;
+    pauseTimeRef.current = null;
 
     // Start playing background music
     if (audioRef.current) {
@@ -216,6 +252,7 @@ const AnimatedProfilePresentation = ({ profileText, participantData, onClose }) 
 
   // Animate through sentences one by one
   const animateSentence = (sentenceIndex) => {
+    // Check if we've reached the end of the presentation
     if (sentenceIndex >= sentences.length) {
       setIsPlaying(false);
       return;
@@ -224,6 +261,8 @@ const AnimatedProfilePresentation = ({ profileText, participantData, onClose }) 
     const sentence = sentences[sentenceIndex];
     setCurrentSentence(sentence);
     setCurrentEmoji(findRelevantEmoji(sentence));
+    // Make sure we update the current sentence index
+    setCurrentSentenceIndex(sentenceIndex);
 
     // Check if this sentence contains location information
     const locationInSentence = extractLocation(sentence);
@@ -279,64 +318,108 @@ const AnimatedProfilePresentation = ({ profileText, participantData, onClose }) 
 
     // Only set up the timer if not paused
     if (!isPaused) {
+      console.log(`Setting up timer to move to next sentence in ${displayTime}ms`);
       timerRef.current = setTimeout(() => {
         animateSentence(sentenceIndex + 1);
       }, displayTime);
+    } else {
+      console.log('Presentation is paused, not setting up next timer');
     }
   };
 
   // Pause the presentation
   const pausePresentation = () => {
-    if (!isPlaying || isPaused) return;
+    console.log('Pause called, isPlaying:', isPlaying, 'isPaused:', isPaused, 'currentIndex:', currentSentenceIndex);
 
+    if (!isPlaying || isPaused) {
+      console.log('Cannot pause: presentation is not playing or already paused');
+      return;
+    }
+
+    console.log('Pausing presentation at sentence index:', currentSentenceIndex);
     setIsPaused(true);
+
+    // Record the current time when paused
+    pauseTimeRef.current = Date.now();
 
     // Clear the current timeout
     if (timerRef.current) {
       clearTimeout(timerRef.current);
+      console.log('Cleared timeout, current sentence will continue on resume');
     }
 
     // Pause the background music
     if (audioRef.current) {
       audioRef.current.pause();
+      console.log('Audio paused');
     }
   };
 
-  // Resume the presentation
+  // Resume the presentation - simplified approach
   const resumePresentation = () => {
-    if (!isPlaying || !isPaused) return;
+    console.log('Resume called, isPlaying:', isPlaying, 'isPaused:', isPaused, 'currentIndex:', currentSentenceIndex);
 
-    setIsPaused(false);
+    if (!isPlaying || !isPaused) {
+      console.log('Cannot resume: presentation is not playing or not paused');
+      return;
+    }
 
-    // Resume the background music
+    console.log('Resuming presentation at sentence index:', currentSentenceIndex);
+
+    // Resume the background music first
     if (audioRef.current) {
       audioRef.current.play().catch(error => {
         console.error('Error resuming audio:', error);
       });
     }
 
-    // Continue with the current sentence
-    if (nextTimeoutRef.current !== null) {
+    // Simplified approach: just unpause and continue from the current sentence
+    setIsPaused(false);
+
+    // Force a re-render of the current sentence with a slight delay
+    // This ensures the animation continues properly
+    setTimeout(() => {
+      // Continue from the current sentence
+      console.log('Restarting animation from current sentence:', currentSentenceIndex);
+
+      // Clear any existing timers
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+
+      // Set up a new timer to move to the next sentence
+      const displayTime = 4000; // Use a reasonable default display time
       timerRef.current = setTimeout(() => {
+        console.log('Moving to next sentence:', currentSentenceIndex + 1);
         animateSentence(currentSentenceIndex + 1);
-      }, nextTimeoutRef.current);
-    }
+      }, displayTime);
+    }, 100);
   };
 
   // Stop the presentation
   const stopPresentation = () => {
+    console.log('Stop presentation called');
+
     setIsPlaying(false);
     setIsPaused(false);
 
+    // Clear all timers
     if (timerRef.current) {
       clearTimeout(timerRef.current);
+      timerRef.current = null;
     }
+
+    // Reset refs
+    nextTimeoutRef.current = null;
+    pauseTimeRef.current = null;
 
     // Stop the background music
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
+
+    console.log('Presentation stopped and all states reset');
   };
 
   // Clean up on unmount
@@ -388,8 +471,33 @@ const AnimatedProfilePresentation = ({ profileText, participantData, onClose }) 
           {currentEmoji}
         </div>
 
-        {/* Current sentence - styled differently based on whether it's a title or content */}
-        {isSectionTitle ? (
+        {/* Current sentence - styled differently based on content type */}
+        {isTeamMemberIntro(currentSentence) ? (
+          <div className="member-name-container">
+            <div className="member-name-intro text-white font-heading shadow-text">
+              Team Member Profile:
+            </div>
+            <div className="member-name shadow-text">
+              {extractMemberName()}
+            </div>
+            {/* Add sparkles around the name for extra effect */}
+            <div className="sparkle" style={{ top: '40%', left: '30%', animationDelay: '0s' }}></div>
+            <div className="sparkle" style={{ top: '30%', left: '40%', animationDelay: '0.2s' }}></div>
+            <div className="sparkle" style={{ top: '60%', left: '60%', animationDelay: '0.4s' }}></div>
+            <div className="sparkle" style={{ top: '50%', left: '70%', animationDelay: '0.6s' }}></div>
+            <div className="sparkle" style={{ top: '70%', left: '50%', animationDelay: '0.8s' }}></div>
+            <div className="sparkle" style={{ top: '30%', left: '60%', animationDelay: '1.0s' }}></div>
+            <div className="sparkle" style={{ top: '60%', left: '30%', animationDelay: '1.2s' }}></div>
+
+            {/* Add some confetti for celebration */}
+            <div className="confetti" style={{ left: '20%', backgroundColor: '#FF5252', width: '12px', height: '12px', animationDelay: '0.1s' }}></div>
+            <div className="confetti" style={{ left: '40%', backgroundColor: '#FFEB3B', width: '8px', height: '8px', animationDelay: '0.3s' }}></div>
+            <div className="confetti" style={{ left: '60%', backgroundColor: '#2196F3', width: '10px', height: '10px', animationDelay: '0.5s' }}></div>
+            <div className="confetti" style={{ left: '80%', backgroundColor: '#4CAF50', width: '14px', height: '14px', animationDelay: '0.7s' }}></div>
+            <div className="confetti" style={{ left: '30%', backgroundColor: '#9C27B0', width: '9px', height: '9px', animationDelay: '0.9s' }}></div>
+            <div className="confetti" style={{ left: '70%', backgroundColor: '#FF9800', width: '11px', height: '11px', animationDelay: '1.1s' }}></div>
+          </div>
+        ) : isSectionTitle ? (
           <div className="text-white font-heading text-title mb-10 max-w-4xl text-center transform transition-all duration-500 ease-in-out animate-title shadow-text">
             {currentSentence.replace(/\*\*/g, '')}
           </div>

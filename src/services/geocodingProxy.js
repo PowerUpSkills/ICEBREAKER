@@ -1,6 +1,8 @@
 /**
  * Geocoding proxy service to handle CORS issues with OpenStreetMap Nominatim API
  * This provides alternative methods for geocoding that work around CORS restrictions
+ *
+ * It also provides location suggestions for autocomplete functionality
  */
 
 /**
@@ -33,7 +35,16 @@ const getFallbackCoordinates = (location) => {
   const locationLower = location.toLowerCase();
 
   // Common cities and countries with approximate coordinates
-  const commonLocations = {
+  return getLocationFromDatabase(locationLower);
+};
+
+/**
+ * Database of common locations with their coordinates
+ * This is used for both geocoding and autocomplete suggestions
+ *
+ * @type {Object.<string, {lat: number, lon: number, display_name: string}>}
+ */
+const locationDatabase = {
     'berlin': { lat: 52.5200, lon: 13.4050, display_name: 'Berlin, Germany' },
     'london': { lat: 51.5074, lon: -0.1278, display_name: 'London, United Kingdom' },
     'new york': { lat: 40.7128, lon: -74.0060, display_name: 'New York, USA' },
@@ -201,11 +212,61 @@ const getFallbackCoordinates = (location) => {
     'rosenheim': { lat: 47.8561, lon: 12.1289, display_name: 'Rosenheim, Germany' },
     'kempten': { lat: 47.7333, lon: 10.3167, display_name: 'Kempten, Germany' },
     'memmingen': { lat: 47.9833, lon: 10.1833, display_name: 'Memmingen, Germany' },
+    // Add more major cities around the world
+    'tokyo': { lat: 35.6762, lon: 139.6503, display_name: 'Tokyo, Japan' },
+    'sydney': { lat: -33.8688, lon: 151.2093, display_name: 'Sydney, Australia' },
+    'rio de janeiro': { lat: -22.9068, lon: -43.1729, display_name: 'Rio de Janeiro, Brazil' },
+    'cape town': { lat: -33.9249, lon: 18.4241, display_name: 'Cape Town, South Africa' },
+    'dubai': { lat: 25.2048, lon: 55.2708, display_name: 'Dubai, United Arab Emirates' },
+    'singapore': { lat: 1.3521, lon: 103.8198, display_name: 'Singapore' },
+    'hong kong': { lat: 22.3193, lon: 114.1694, display_name: 'Hong Kong' },
+    'bangkok': { lat: 13.7563, lon: 100.5018, display_name: 'Bangkok, Thailand' },
+    'istanbul': { lat: 41.0082, lon: 28.9784, display_name: 'Istanbul, Turkey' },
+    'cairo': { lat: 30.0444, lon: 31.2357, display_name: 'Cairo, Egypt' },
+    'moscow': { lat: 55.7558, lon: 37.6173, display_name: 'Moscow, Russia' },
+    'toronto': { lat: 43.6532, lon: -79.3832, display_name: 'Toronto, Canada' },
+    'mexico city': { lat: 19.4326, lon: -99.1332, display_name: 'Mexico City, Mexico' },
+    'buenos aires': { lat: -34.6037, lon: -58.3816, display_name: 'Buenos Aires, Argentina' },
+    'los angeles': { lat: 34.0522, lon: -118.2437, display_name: 'Los Angeles, USA' },
+    'chicago': { lat: 41.8781, lon: -87.6298, display_name: 'Chicago, USA' },
+    'san francisco': { lat: 37.7749, lon: -122.4194, display_name: 'San Francisco, USA' },
+    'seattle': { lat: 47.6062, lon: -122.3321, display_name: 'Seattle, USA' },
+    'boston': { lat: 42.3601, lon: -71.0589, display_name: 'Boston, USA' },
+    'washington': { lat: 38.9072, lon: -77.0369, display_name: 'Washington D.C., USA' },
+    'miami': { lat: 25.7617, lon: -80.1918, display_name: 'Miami, USA' },
+    'austin': { lat: 30.2672, lon: -97.7431, display_name: 'Austin, USA' },
+    'denver': { lat: 39.7392, lon: -104.9903, display_name: 'Denver, USA' },
+    'amsterdam': { lat: 52.3676, lon: 4.9041, display_name: 'Amsterdam, Netherlands' },
+    'barcelona': { lat: 41.3851, lon: 2.1734, display_name: 'Barcelona, Spain' },
+    'madrid': { lat: 40.4168, lon: -3.7038, display_name: 'Madrid, Spain' },
+    'rome': { lat: 41.9028, lon: 12.4964, display_name: 'Rome, Italy' },
+    'milan': { lat: 45.4642, lon: 9.1900, display_name: 'Milan, Italy' },
+    'vienna': { lat: 48.2082, lon: 16.3738, display_name: 'Vienna, Austria' },
+    'prague': { lat: 50.0755, lon: 14.4378, display_name: 'Prague, Czech Republic' },
+    'budapest': { lat: 47.4979, lon: 19.0402, display_name: 'Budapest, Hungary' },
+    'warsaw': { lat: 52.2297, lon: 21.0122, display_name: 'Warsaw, Poland' },
+    'stockholm': { lat: 59.3293, lon: 18.0686, display_name: 'Stockholm, Sweden' },
+    'oslo': { lat: 59.9139, lon: 10.7522, display_name: 'Oslo, Norway' },
+    'copenhagen': { lat: 55.6761, lon: 12.5683, display_name: 'Copenhagen, Denmark' },
+    'helsinki': { lat: 60.1699, lon: 24.9384, display_name: 'Helsinki, Finland' },
+    'athens': { lat: 37.9838, lon: 23.7275, display_name: 'Athens, Greece' },
+    'dublin': { lat: 53.3498, lon: -6.2603, display_name: 'Dublin, Ireland' },
+    'lisbon': { lat: 38.7223, lon: -9.1393, display_name: 'Lisbon, Portugal' },
+    'brussels': { lat: 50.8503, lon: 4.3517, display_name: 'Brussels, Belgium' },
+    'zurich': { lat: 47.3769, lon: 8.5417, display_name: 'Zurich, Switzerland' },
+    'geneva': { lat: 46.2044, lon: 6.1432, display_name: 'Geneva, Switzerland' },
   };
 
+/**
+ * Get a location from the database based on a search term
+ *
+ * @param {string} searchTerm - The search term to look for
+ * @returns {{lat: number, lon: number, display_name: string} | null} - The location or null if not found
+ */
+const getLocationFromDatabase = (searchTerm) => {
   // Try to find an exact match
-  for (const [key, value] of Object.entries(commonLocations)) {
-    if (locationLower.includes(key)) {
+  for (const [key, value] of Object.entries(locationDatabase)) {
+    if (searchTerm.includes(key)) {
       return value;
     }
   }
@@ -215,6 +276,48 @@ const getFallbackCoordinates = (location) => {
   return {
     lat: 49.0 + (Math.random() * 2 - 1),
     lon: 10.0 + (Math.random() * 2 - 1),
-    display_name: location // Use the original input as display name
+    display_name: searchTerm // Use the original input as display name
   };
+};
+
+/**
+ * Get location suggestions based on a search term
+ *
+ * @param {string} searchTerm - The search term to get suggestions for
+ * @returns {Array<{lat: number, lon: number, display_name: string}>} - Array of location suggestions
+ */
+export const getSuggestedLocations = (searchTerm) => {
+  if (!searchTerm || searchTerm.trim().length < 2) {
+    return [];
+  }
+
+  const searchTermLower = searchTerm.toLowerCase();
+  const results = [];
+
+  // Search through the location database for matches
+  for (const [key, value] of Object.entries(locationDatabase)) {
+    if (key.includes(searchTermLower) || value.display_name.toLowerCase().includes(searchTermLower)) {
+      results.push(value);
+    }
+  }
+
+  // Sort results by relevance (exact matches first, then partial matches)
+  results.sort((a, b) => {
+    const aName = a.display_name.toLowerCase();
+    const bName = b.display_name.toLowerCase();
+
+    // Exact matches first
+    if (aName === searchTermLower && bName !== searchTermLower) return -1;
+    if (bName === searchTermLower && aName !== searchTermLower) return 1;
+
+    // Then matches at the beginning
+    if (aName.startsWith(searchTermLower) && !bName.startsWith(searchTermLower)) return -1;
+    if (bName.startsWith(searchTermLower) && !aName.startsWith(searchTermLower)) return 1;
+
+    // Then alphabetical order
+    return aName.localeCompare(bName);
+  });
+
+  // Limit to 10 results for performance
+  return results.slice(0, 10);
 };

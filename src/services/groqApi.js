@@ -81,7 +81,13 @@ Background information:
 Write a fun profile with the following sections ONLY:
 
 **ORIGIN STORY:**
-[Origin story content that incorporates their birthplace and past locations]
+[Origin story content that incorporates their birthplace - ${participantData.answers.birthplace}. Make this a dedicated section about their birthplace with specific details about the location.]
+
+**EARLY ADVENTURES:**
+[A dedicated section about their time in ${participantData.answers.location10} 10 years ago. Include specific details about this location and what they might have experienced there.]
+
+**RECENT JOURNEY:**
+[A dedicated section about their time in ${participantData.answers.location5} 5 years ago. Include specific details about this location and what they might have experienced there.]
 
 **POWER STATS:**
 - **Work Style:** [Work style]
@@ -113,7 +119,8 @@ IMPORTANT INSTRUCTIONS:
 2. Do NOT include any percentages in the profile
 3. Do NOT add any introduction or conclusion - start directly with the ORIGIN STORY section
 4. Keep it fun, positive, and professional
-5. Focus on their actual role (${participantData.answers.role}) rather than inventing a superhero equivalent`;
+5. Focus on their actual role (${participantData.answers.role}) rather than inventing a superhero equivalent
+6. VERY IMPORTANT: Create THREE SEPARATE LOCATION SECTIONS as outlined above (Origin Story, Early Adventures, Recent Journey) - each focusing on a different location from their history. Each section should be detailed enough to allow time for a map to be displayed during presentation.`;
 }
 
 /**
@@ -141,9 +148,17 @@ function formatProfile(aiResponse, participantData) {
   // Add the remaining AI content
   formattedResponse += aiContent;
 
-  // If the AI response is missing key sections, add them
+  // If the AI response is missing key location sections, add them
   if (!formattedResponse.includes("ORIGIN STORY")) {
-    formattedResponse += `\n\n**ORIGIN STORY:**\nBorn in ${participantData.answers.birthplace}, ${participantData.name} has journeyed through ${participantData.answers.location10} (10 years ago) and ${participantData.answers.location5} (5 years ago) before joining our team.`;
+    formattedResponse += `\n\n**ORIGIN STORY:**\nBorn in ${participantData.answers.birthplace}, ${participantData.name}'s journey began in a place known for its unique culture and atmosphere. The environment of ${participantData.answers.birthplace} shaped their early perspectives and instilled values that would later become fundamental to their professional approach.`;
+  }
+
+  if (!formattedResponse.includes("EARLY ADVENTURES")) {
+    formattedResponse += `\n\n**EARLY ADVENTURES:**\nAbout a decade ago, ${participantData.name} found themselves in ${participantData.answers.location10}, a significant chapter in their life journey. During this time in ${participantData.answers.location10}, they developed key skills and experiences that would later prove invaluable. The local environment and culture of ${participantData.answers.location10} left a lasting impression on their work ethic.`;
+  }
+
+  if (!formattedResponse.includes("RECENT JOURNEY")) {
+    formattedResponse += `\n\n**RECENT JOURNEY:**\nFive years ago, ${participantData.name}'s path led to ${participantData.answers.location5}, where they encountered new challenges and opportunities. Their time in ${participantData.answers.location5} was transformative, providing them with fresh perspectives and approaches that they bring to the team today. The unique aspects of ${participantData.answers.location5} continue to influence their problem-solving methods.`;
   }
 
   // Make sure there's a quote
@@ -185,7 +200,13 @@ ${emojiIcon} **${participantData.answers.role.toUpperCase()}**
 *${participantData.name} is empowering the TechTOM Team by being a ${participantData.answers.role}*
 
 **ORIGIN STORY:**
-Born in ${participantData.answers.birthplace}, ${participantData.name} has journeyed through ${participantData.answers.location10} (10 years ago) and ${participantData.answers.location5} (5 years ago) before joining our team.
+Born in ${participantData.answers.birthplace}, ${participantData.name}'s journey began in a place known for its unique culture and atmosphere. The environment of ${participantData.answers.birthplace} shaped their early perspectives and instilled values that would later become fundamental to their professional approach.
+
+**EARLY ADVENTURES:**
+About a decade ago, ${participantData.name} found themselves in ${participantData.answers.location10}, a significant chapter in their life journey. During this time in ${participantData.answers.location10}, they developed key skills and experiences that would later prove invaluable. The local environment and culture of ${participantData.answers.location10} left a lasting impression on their work ethic.
+
+**RECENT JOURNEY:**
+Five years ago, ${participantData.name}'s path led to ${participantData.answers.location5}, where they encountered new challenges and opportunities. Their time in ${participantData.answers.location5} was transformative, providing them with fresh perspectives and approaches that they bring to the team today. The unique aspects of ${participantData.answers.location5} continue to influence their problem-solving methods.
 
 **POWER STATS:**
 - **Work Style:** ${participantData.answers.workspace}

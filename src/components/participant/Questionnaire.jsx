@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import LocationMap from '../common/LocationMap';
+import LocationAutocomplete from '../common/LocationAutocomplete';
 
 const Questionnaire = ({ onComplete, participantInfo }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -27,19 +28,19 @@ const Questionnaire = ({ onComplete, participantInfo }) => {
     {
       id: 'birthplace',
       type: 'location',
-      question: "Where were you born?",
+      question: "Where were you born? (This will be your Origin Story location)",
       placeholder: "e.g., Tokyo, Japan"
     },
     {
       id: 'location5',
       type: 'location',
-      question: "Where were you living 5 years ago?",
+      question: "Where were you living 5 years ago? (This will be your Recent Journey location)",
       placeholder: "e.g., San Francisco, USA"
     },
     {
       id: 'location10',
       type: 'location',
-      question: "Where were you living 10 years ago?",
+      question: "Where were you living 10 years ago? (This will be your Early Adventures location)",
       placeholder: "e.g., Berlin, Germany"
     },
     {
@@ -184,12 +185,11 @@ const Questionnaire = ({ onComplete, participantInfo }) => {
       case 'location':
         return (
           <div className="mt-4 space-y-4">
-            <input
-              type="text"
-              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder={currentQuestion.placeholder}
+            <LocationAutocomplete
               value={answers[currentQuestion.id] || ''}
-              onChange={(e) => handleAnswerChange(e.target.value)}
+              onChange={(value) => handleAnswerChange(value)}
+              placeholder={currentQuestion.placeholder}
+              className="w-full"
             />
             {answers[currentQuestion.id] && (
               <LocationMap location={answers[currentQuestion.id]} />
