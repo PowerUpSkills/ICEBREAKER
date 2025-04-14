@@ -191,9 +191,7 @@ const Questionnaire = ({ onComplete, participantInfo }) => {
               placeholder={currentQuestion.placeholder}
               className="w-full"
             />
-            {answers[currentQuestion.id] && (
-              <LocationMap location={answers[currentQuestion.id]} />
-            )}
+            {/* Map is now included in the LocationAutocomplete component */}
           </div>
         );
 

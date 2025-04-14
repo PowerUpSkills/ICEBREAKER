@@ -25,7 +25,7 @@ const AnimatedProfilePresentation = ({ profileText, participantData, onClose }) 
   useEffect(() => {
     // Create audio element if it doesn't exist
     if (!audioRef.current) {
-      audioRef.current = new Audio('/src/components/audio/Summer-Pack-No-Copyright-Music-01-Summer-FULL-TRACK.mp3');
+      audioRef.current = new Audio('/audio/Summer-Pack-No-Copyright-Music-01-Summer-FULL-TRACK.mp3');
       audioRef.current.volume = volume / 100; // Convert percentage to 0-1 range
       audioRef.current.loop = true; // Loop the audio
     } else {
@@ -439,6 +439,15 @@ const AnimatedProfilePresentation = ({ profileText, participantData, onClose }) 
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 overflow-hidden">
+      {/* Persistent header with participant name */}
+      {participantData && (
+        <div className="persistent-header">
+          <div className="persistent-name">
+            {participantData.name}
+          </div>
+        </div>
+      )}
+
       {/* Background effects */}
       <div className="absolute inset-0 bg-black bg-opacity-40"></div>
 
